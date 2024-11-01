@@ -41,4 +41,9 @@ public class CompanyController {
         UpdateCompanyResponse updatedCompany = companyService.updateCompanyInfo(request);
         return ResponseEntity.ok(updatedCompany);
     }
+
+    @GetMapping("/info")
+    public ResponseEntity<CompanyInfoResponse> getCompanyInfo(){
+        return ResponseEntity.ok(companyService.getCompanyInfo());
+    }
 }

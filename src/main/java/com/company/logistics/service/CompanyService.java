@@ -76,4 +76,17 @@ public class CompanyService {
                 .email(companyUpdated.getEmail())
                 .build();
     }
+
+    public CompanyInfoResponse getCompanyInfo(){
+        String authenticationUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Company company = companyRepository.findByName(authenticationUserName).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        return CompanyInfoResponse.builder()
+                .id(company.getId())
+                .name(company.getName())
+                .address(company.getAddress())
+                .email(company.getEmail())
+                .phoneNumber(company.getPhoneNumber())
+                .role(company.getRole())
+                .build();
+    }
 }
