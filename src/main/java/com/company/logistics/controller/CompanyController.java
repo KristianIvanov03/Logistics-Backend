@@ -1,9 +1,6 @@
 package com.company.logistics.controller;
 
-import com.company.logistics.model.company.AuthenticationRequest;
-import com.company.logistics.model.company.AuthenticationResponse;
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.company.RegisterRequest;
+import com.company.logistics.model.company.*;
 import com.company.logistics.service.CompanyService;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +28,11 @@ public class CompanyController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> loginCompany(@RequestBody AuthenticationRequest loginRequest){
         return ResponseEntity.ok(companyService.loginCompany(loginRequest));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequest request){
+        companyService.resetPassword(request);
+        return ResponseEntity.ok("Password updated successfully");
     }
 }

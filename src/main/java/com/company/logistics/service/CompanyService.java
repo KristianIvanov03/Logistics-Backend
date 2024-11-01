@@ -1,15 +1,13 @@
 package com.company.logistics.service;
 
 import com.company.logistics.exception.ResourceNotFoundException;
-import com.company.logistics.model.company.AuthenticationRequest;
-import com.company.logistics.model.company.AuthenticationResponse;
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.company.RegisterRequest;
+import com.company.logistics.model.company.*;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,5 +47,11 @@ public class CompanyService {
         var user = companyRepository.findByName(loginRequest.getName()).orElseThrow();
         var authToken = jwtUtil.generateToken(user);
         return AuthenticationResponse.builder().token(authToken).build();
+    }
+
+    public void resetPassword(PasswordResetRequest request){
+        Company company = companyRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Company not Found"));
+        company.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        companyRepository.save(company);
     }
 }
