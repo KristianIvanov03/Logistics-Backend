@@ -7,6 +7,7 @@ import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,5 +54,26 @@ public class CompanyService {
         Company company = companyRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Company not Found"));
         company.setPassword(passwordEncoder.encode(request.getNewPassword()));
         companyRepository.save(company);
+    }
+
+    public UpdateCompanyResponse updateCompanyInfo(UpdateCompanyRequest request){
+        String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Company company = companyRepository.findByName(authenticatedUsername).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        if(request.getEmail() != null){
+            company.setEmail(request.getEmail());
+        }
+        if(request.getAddress() != null){
+            company.setAddress(request.getAddress());
+        }
+        if(request.getPhoneNumber() != null){
+            company.setPhoneNumber(request.getPhoneNumber());
+        }
+        Company companyUpdated = companyRepository.save(company);
+        return UpdateCompanyResponse.builder()
+                .address(companyUpdated.getAddress())
+                .phoneNumber(companyUpdated.getPhoneNumber())
+                .email(companyUpdated.getEmail())
+                .build();
     }
 }

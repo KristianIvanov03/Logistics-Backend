@@ -35,4 +35,10 @@ public class CompanyController {
         companyService.resetPassword(request);
         return ResponseEntity.ok("Password updated successfully");
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<UpdateCompanyResponse> updateCompanyInfo(@RequestBody UpdateCompanyRequest request){
+        UpdateCompanyResponse updatedCompany = companyService.updateCompanyInfo(request);
+        return ResponseEntity.ok(updatedCompany);
+    }
 }
