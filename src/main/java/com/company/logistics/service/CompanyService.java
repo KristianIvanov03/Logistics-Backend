@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -33,7 +34,9 @@ public class CompanyService {
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
         companyRepository.save(company1);
-        var jwtToken = jwtUtil.generateToken(company1);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", registerRequest.getRole());
+        var jwtToken = jwtUtil.generateToken(extraClaims, company1);
         return AuthenticationResponse.builder()
                 .token(jwtToken).build();
     }

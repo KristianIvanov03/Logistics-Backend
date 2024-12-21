@@ -14,12 +14,12 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/offices")
+@RequestMapping("/api/companies/offices")
 @RequiredArgsConstructor
 public class OfficeController {
     private final OfficeService officeService;
 
-    @PreAuthorize("hasRole('COMPANY')")
+
     @PostMapping("/add")
     public ResponseEntity<OfficeResponseDTO> addOffice(@RequestBody OfficeRequestDTO requestDTO){
         return ResponseEntity.ok(officeService.addOffice(requestDTO));
