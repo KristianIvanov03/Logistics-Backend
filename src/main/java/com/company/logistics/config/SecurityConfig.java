@@ -21,13 +21,20 @@ public class SecurityConfig {
 
     private final AuthenticationProvider employeeAuthenticationProvider;
 
+    private final AuthenticationProvider clientsAuthenticationProvider;
+
     private final JwtEmployeeAuthenticationFilter jwtEmployeeAuthenticationFilter;
 
-    public SecurityConfig(@Qualifier("authenticationProvider") AuthenticationProvider provider, JwtAuthemticationFilter filter, @Qualifier("employeeAuthenticationProvider") AuthenticationProvider provider2, JwtEmployeeAuthenticationFilter filter2){
+    public SecurityConfig(@Qualifier("authenticationProvider") AuthenticationProvider provider,
+                          JwtAuthemticationFilter filter,
+                          @Qualifier("employeeAuthenticationProvider") AuthenticationProvider provider2,
+                          JwtEmployeeAuthenticationFilter filter2,
+                          @Qualifier("clientAuthenticationProvider") AuthenticationProvider provider3){
         this.authenticationProvider = provider;
         this.jwtAuthFilter = filter;
         this.employeeAuthenticationProvider = provider2;
         this.jwtEmployeeAuthenticationFilter = filter2;
+        this.clientsAuthenticationProvider = provider3;
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -58,6 +65,23 @@ public class SecurityConfig {
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(employeeAuthenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
+    }
+
+    @Bean
+    public SecurityFilterChain securityClientFilterChain(HttpSecurity httpSecurity) throws Exception{
+        httpSecurity
+                .csrf()
+                .disable()
+                .securityMatcher("/api/clients/**")
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api/clients/account/auth/register", "/api/clients/account/auth/login").permitAll();
+                    auth.anyRequest().authenticated();
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(clientsAuthenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();

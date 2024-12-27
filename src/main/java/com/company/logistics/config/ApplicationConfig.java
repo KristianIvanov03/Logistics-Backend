@@ -1,5 +1,6 @@
 package com.company.logistics.config;
 
+import com.company.logistics.repository.ClientAccountRepository;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.EmployeeAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ApplicationConfig {
     private final CompanyRepository companyRepository;
     private final EmployeeAccountRepository employeeAccountRepository;
+    private final ClientAccountRepository clientAccountRepository;
     @Bean
     @Qualifier("userDetailsService")
     public UserDetailsService userDetailsService(){
@@ -35,6 +37,13 @@ public class ApplicationConfig {
     public UserDetailsService userEmployeeDetailsService(){
         return username -> employeeAccountRepository.findByName(username)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
+    }
+
+    @Bean
+    @Qualifier("userClientDetailsService")
+    public UserDetailsService userClientDetailsService(){
+        return username -> clientAccountRepository.findByName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
@@ -56,6 +65,15 @@ public class ApplicationConfig {
     }
 
     @Bean
+    @Qualifier("clientAuthenticationProvider")
+    public AuthenticationProvider clientAuthenticationProvider(){
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userClientDetailsService());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
@@ -63,6 +81,6 @@ public class ApplicationConfig {
     @Bean
     @Qualifier("authenticationManager")
     public AuthenticationManager authenticationManager() throws Exception{
-        return new ProviderManager(List.of(authenticationProvider(), employeeAuthenticationProvider()));
+        return new ProviderManager(List.of(authenticationProvider(), employeeAuthenticationProvider(), clientAuthenticationProvider()));
     }
 }
