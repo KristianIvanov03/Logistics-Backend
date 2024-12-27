@@ -26,10 +26,13 @@ public class JwtAuthemticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userEmployeeDetailsService;
 
-    public JwtAuthemticationFilter(@Qualifier("userDetailsService") UserDetailsService service, JwtUtil jwtUtil, @Qualifier("userEmployeeDetailsService") UserDetailsService service2){
+    private final UserDetailsService userClientDetailsService;
+
+    public JwtAuthemticationFilter(@Qualifier("userDetailsService") UserDetailsService service, JwtUtil jwtUtil, @Qualifier("userEmployeeDetailsService") UserDetailsService service2, @Qualifier("userClientDetailsService") UserDetailsService service3){
         this.jwtUtil = jwtUtil;
         this.userDetailsService = service;
         this.userEmployeeDetailsService = service2;
+        this.userClientDetailsService = service3;
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -56,6 +59,16 @@ public class JwtAuthemticationFilter extends OncePerRequestFilter {
         else if(role.equals(Role.EMPLOYEE.name())){
             if(name != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 UserDetails userDetails = this.userEmployeeDetailsService.loadUserByUsername(name);
+                if (jwtUtil.isTokenValid(jwt, userDetails)){
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        }
+        else if(role.equals(Role.CLIENT.name())){
+            if(name != null && SecurityContextHolder.getContext().getAuthentication() == null){
+                UserDetails userDetails = this.userClientDetailsService.loadUserByUsername(name);
                 if (jwtUtil.isTokenValid(jwt, userDetails)){
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

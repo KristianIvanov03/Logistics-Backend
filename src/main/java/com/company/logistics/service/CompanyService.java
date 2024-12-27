@@ -49,7 +49,9 @@ public class CompanyService {
                 )
         );
         var user = companyRepository.findByName(loginRequest.getName()).orElseThrow();
-        var authToken = jwtUtil.generateToken(user);
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", user.getRole());
+        var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
     }
 
