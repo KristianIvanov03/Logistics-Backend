@@ -1,7 +1,6 @@
 package com.company.logistics.repository;
 
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.employeeaccaunts.EmployeeAccount;
+import com.company.logistics.model.entities.EmployeeAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

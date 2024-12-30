@@ -1,7 +1,6 @@
-package com.company.logistics.model.employee;
+package com.company.logistics.model.entities;
 
-import com.company.logistics.model.company.Company;
-import com.company.logistics.utils.EmployeeRole;
+import com.company.logistics.model.enums.EmployeeRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

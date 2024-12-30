@@ -1,6 +1,5 @@
 package com.company.logistics.controller;
 
-import com.company.logistics.model.employee.Employee;
 import com.company.logistics.model.employee.EmployeeRequestDTO;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
 import com.company.logistics.service.EmployeeService;

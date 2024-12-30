@@ -1,22 +1,14 @@
 package com.company.logistics.service;
 
-import com.company.logistics.model.clientaccount.ClientAccount;
+import com.company.logistics.model.entities.ClientAccount;
 import com.company.logistics.model.clientaccount.ClientRegisterRequest;
 import com.company.logistics.model.company.AuthenticationRequest;
 import com.company.logistics.model.company.AuthenticationResponse;
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.employeeaccaunts.EmployeeAccount;
-import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
-import com.company.logistics.model.office.Office;
 import com.company.logistics.repository.ClientAccountRepository;
-import com.company.logistics.repository.CompanyRepository;
-import com.company.logistics.repository.EmployeeAccountRepository;
-import com.company.logistics.repository.OfficeRepository;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

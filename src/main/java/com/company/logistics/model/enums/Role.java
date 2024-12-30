@@ -1,4 +1,4 @@
-package com.company.logistics.utils;
+package com.company.logistics.model.enums;
 
 public enum Role {
     CLIENT,

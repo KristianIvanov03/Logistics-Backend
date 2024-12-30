@@ -1,9 +1,8 @@
-package com.company.logistics.model.employeeaccaunts;
+package com.company.logistics.model.entities;
 
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.office.Office;
-import com.company.logistics.utils.EmployeeRole;
-import com.company.logistics.utils.Role;
+import com.company.logistics.model.enums.EmployeeRole;
+import com.company.logistics.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,9 +42,11 @@ public class EmployeeAccount implements UserDetails {
     private String lastName;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private EmployeeRole employeeRole;
 
     @Column(nullable = false)
@@ -53,11 +54,15 @@ public class EmployeeAccount implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "office_id", nullable = false)
+    @JsonBackReference
     private Office office;
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    @OneToMany(mappedBy = "registeredByEmployee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Package> sentPackages;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

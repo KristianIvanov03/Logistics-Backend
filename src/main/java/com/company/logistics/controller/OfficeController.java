@@ -1,6 +1,5 @@
 package com.company.logistics.controller;
 
-import com.company.logistics.model.office.Office;
 import com.company.logistics.model.office.OfficeRequestDTO;
 import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.service.OfficeService;

@@ -1,7 +1,7 @@
 package com.company.logistics.service;
 
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.office.Office;
+import com.company.logistics.model.entities.Company;
+import com.company.logistics.model.entities.Office;
 import com.company.logistics.model.office.OfficeRequestDTO;
 import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;

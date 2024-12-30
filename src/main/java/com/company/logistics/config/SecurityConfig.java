@@ -23,17 +23,13 @@ public class SecurityConfig {
 
     private final AuthenticationProvider clientsAuthenticationProvider;
 
-    private final JwtEmployeeAuthenticationFilter jwtEmployeeAuthenticationFilter;
-
     public SecurityConfig(@Qualifier("authenticationProvider") AuthenticationProvider provider,
                           JwtAuthemticationFilter filter,
                           @Qualifier("employeeAuthenticationProvider") AuthenticationProvider provider2,
-                          JwtEmployeeAuthenticationFilter filter2,
                           @Qualifier("clientAuthenticationProvider") AuthenticationProvider provider3){
         this.authenticationProvider = provider;
         this.jwtAuthFilter = filter;
         this.employeeAuthenticationProvider = provider2;
-        this.jwtEmployeeAuthenticationFilter = filter2;
         this.clientsAuthenticationProvider = provider3;
     }
     @Bean

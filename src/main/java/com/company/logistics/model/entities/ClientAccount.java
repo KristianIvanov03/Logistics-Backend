@@ -1,6 +1,7 @@
-package com.company.logistics.model.clientaccount;
+package com.company.logistics.model.entities;
 
-import com.company.logistics.utils.Role;
+import com.company.logistics.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +37,17 @@ public class ClientAccount implements UserDetails {
 
     private String address;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "senderId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Package> sentPackages;
+
+    @OneToMany(mappedBy = "receiverId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Package> receivedPackages;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

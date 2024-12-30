@@ -1,6 +1,7 @@
-package com.company.logistics.model.company;
+package com.company.logistics.model.entities;
 
-import com.company.logistics.utils.Role;
+import com.company.logistics.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,6 +45,10 @@ public class Company implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Package> packages;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

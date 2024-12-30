@@ -1,7 +1,7 @@
 package com.company.logistics.service;
 
-import com.company.logistics.exception.ResourceNotFoundException;
 import com.company.logistics.model.company.*;
+import com.company.logistics.model.entities.Company;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;

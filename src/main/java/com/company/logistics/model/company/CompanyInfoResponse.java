@@ -1,6 +1,6 @@
 package com.company.logistics.model.company;
 
-import com.company.logistics.utils.Role;
+import com.company.logistics.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

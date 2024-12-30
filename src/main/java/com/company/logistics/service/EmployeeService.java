@@ -1,11 +1,9 @@
 package com.company.logistics.service;
 
-import com.company.logistics.model.company.Company;
-import com.company.logistics.model.employee.Employee;
+import com.company.logistics.model.entities.Company;
+import com.company.logistics.model.entities.Employee;
 import com.company.logistics.model.employee.EmployeeRequestDTO;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
-import com.company.logistics.model.office.Office;
-import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
