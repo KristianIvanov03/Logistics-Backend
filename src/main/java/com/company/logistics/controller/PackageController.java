@@ -7,10 +7,7 @@ import com.company.logistics.model.packages.UpdateStatusRequest;
 import com.company.logistics.service.PackageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/employee/packages")
@@ -22,7 +19,11 @@ public class PackageController {
         return ResponseEntity.ok(packageService.createPackage(request));
     }
     @PostMapping("/updateStatus")
-    public void updateStatus(@RequestBody UpdateStatusRequest updateStatusRequest){
-        return;
+    public ResponseEntity<PackageResonseDto> updateStatus(@RequestBody UpdateStatusRequest updateStatusRequest){
+        return ResponseEntity.ok(packageService.updateStatus(updateStatusRequest));
+    }
+    @PostMapping("/finishPackage/{id}")
+    public ResponseEntity<PackageResonseDto> finishPackage(@PathVariable Long id){
+        return ResponseEntity.ok(packageService.finishPackage(id));
     }
 }

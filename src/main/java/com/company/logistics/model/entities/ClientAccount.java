@@ -41,6 +41,10 @@ public class ClientAccount implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company companyId;
+
     @OneToMany(mappedBy = "senderId", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Package> sentPackages;

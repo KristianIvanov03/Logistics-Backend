@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -55,7 +56,7 @@ public class Package {
 
     private Boolean isDelivered;
 
-    private LocalDateTime deliveryDate;
+    private LocalDate deliveryDate;
 
     private LocalDateTime registrationDate;
 

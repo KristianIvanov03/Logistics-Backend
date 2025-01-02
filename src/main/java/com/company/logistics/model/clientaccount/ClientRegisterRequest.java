@@ -22,4 +22,6 @@ public class ClientRegisterRequest {
     private String address;
 
     private Role role;
+
+    private Long companyId;
 }

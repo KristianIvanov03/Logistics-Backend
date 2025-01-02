@@ -8,10 +8,12 @@ import com.company.logistics.model.packages.PackageResonseDto;
 import com.company.logistics.model.packages.UpdateStatusRequest;
 import com.company.logistics.repository.*;
 import com.company.logistics.model.enums.PackageStatus;
+import com.company.logistics.utils.ReportMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -62,10 +64,19 @@ public class PackageService {
         return response;
     }
 
-    public Package updateStatus(UpdateStatusRequest request){
+    public PackageResonseDto updateStatus(UpdateStatusRequest request){
         Package pack = packageRepository.findById(request.getPackageId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
         pack.setStatus(request.getStatus());
-        return packageRepository.save(pack);
+        Package pack1 = packageRepository.save(pack);
+        return ReportMapper.buildPackage(pack1);
+    }
+
+    public PackageResonseDto finishPackage(Long id){
+        Package pack = packageRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        pack.setStatus(PackageStatus.DELIVERED);
+        pack.setDeliveryDate(LocalDate.now());
+        Package pack1 = packageRepository.save(pack);
+        return ReportMapper.buildPackage(pack1);
     }
 
     private ClientInfo buildClientInfo(ClientAccount account){
