@@ -6,8 +6,13 @@ import com.company.logistics.model.packages.PackageResonseDto;
 import com.company.logistics.model.packages.UpdateStatusRequest;
 import com.company.logistics.service.PackageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.AccessDeniedException;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/employee/packages")
@@ -25,5 +30,15 @@ public class PackageController {
     @PostMapping("/finishPackage/{id}")
     public ResponseEntity<PackageResonseDto> finishPackage(@PathVariable Long id){
         return ResponseEntity.ok(packageService.finishPackage(id));
+    }
+    @GetMapping
+    public ResponseEntity<List<PackageResonseDto>> getAllPackages(){
+        try{
+            return ResponseEntity.ok(packageService.getAllPackages());
+        }catch (AccessDeniedException ex){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Collections.emptyList());
+        }
+
     }
 }
