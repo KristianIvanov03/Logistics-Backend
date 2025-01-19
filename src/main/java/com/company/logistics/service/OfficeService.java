@@ -6,6 +6,7 @@ import com.company.logistics.model.office.OfficeRequestDTO;
 import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.OfficeRepository;
+import com.company.logistics.utils.AuthenticationService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,18 +16,18 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OfficeService {
     private final OfficeRepository officeRepository;
-    private final CompanyRepository companyRepository;
+    private final AuthenticationService authenticationService;
 
     @Transactional
     public OfficeResponseDTO addOffice(OfficeRequestDTO requestDTO){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
 
         Office office = Office.builder()
                 .address(requestDTO.getAddress())
@@ -41,19 +42,14 @@ public class OfficeService {
     @Transactional
     public OfficeResponseDTO updateOffice(Long officeId, OfficeRequestDTO requestDTO) throws AccessDeniedException{
         Office office = officeRepository.findById(officeId).orElseThrow(() -> new EntityNotFoundException("Office not found"));
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
 
         if(!office.getCompany().getId().equals(company.getId())){
             throw new AccessDeniedException("You do not have permission to update this office");
         }
 
-        if(requestDTO.getAddress() != null){
-            office.setAddress(requestDTO.getAddress());
-        }
-        if(requestDTO.getPhoneNumber()!=null){
-            office.setPhoneNumber(requestDTO.getPhoneNumber());
-        }
+        Optional.ofNullable(requestDTO.getAddress()).ifPresent(office::setAddress);
+        Optional.ofNullable(requestDTO.getPhoneNumber()).ifPresent(office::setPhoneNumber);
 
         Office savedOffice = officeRepository.save(office);
         return mapToResponseDTO(savedOffice);
@@ -61,8 +57,7 @@ public class OfficeService {
 
     @Transactional(readOnly = true)
     public List<OfficeResponseDTO> getOfficesForCompany(){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
         List<Office> offices = officeRepository.findByCompany(company);
         List<OfficeResponseDTO> response = offices.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
         return response;
@@ -73,9 +68,7 @@ public class OfficeService {
         Office office = officeRepository.findById(officeId)
                 .orElseThrow(() -> new EntityNotFoundException("Office not found"));
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
 
         // Check if the office belongs to the authenticated company
         if (!office.getCompany().getId().equals(company.getId())) {

@@ -3,6 +3,7 @@ package com.company.logistics.controller;
 import com.company.logistics.model.office.OfficeRequestDTO;
 import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.service.OfficeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class OfficeController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<OfficeResponseDTO> addOffice(@RequestBody OfficeRequestDTO requestDTO){
+    public ResponseEntity<OfficeResponseDTO> addOffice(@RequestBody @Valid OfficeRequestDTO requestDTO){
         return ResponseEntity.ok(officeService.addOffice(requestDTO));
     }
 
