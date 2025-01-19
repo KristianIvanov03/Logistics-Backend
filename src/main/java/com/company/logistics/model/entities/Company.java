@@ -48,6 +48,9 @@ public class Company implements UserDetails {
     @JsonManagedReference
     private List<Package> packages;
 
+    @OneToMany(mappedBy = "company")
+    private List<EmployeeAccount> employees;
+
     @OneToMany(mappedBy = "companyId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClientAccount> clients;
 

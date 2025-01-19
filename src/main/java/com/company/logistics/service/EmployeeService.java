@@ -1,87 +1,60 @@
 package com.company.logistics.service;
 
+import com.company.logistics.exception.AuthorizationException;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
+import com.company.logistics.model.employeeaccaunts.UpdateEmployeeRequest;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.model.entities.Employee;
 import com.company.logistics.model.employee.EmployeeRequestDTO;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
+import com.company.logistics.model.entities.EmployeeAccount;
+import com.company.logistics.model.entities.Office;
+import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;
+import com.company.logistics.repository.EmployeeAccountRepository;
 import com.company.logistics.repository.EmployeeRepository;
+import com.company.logistics.utils.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
     private final EmployeeRepository employeeRepository;
-    private final CompanyRepository companyRepository;
+    private final AuthenticationService authenticationService;
+    private final EmployeeAccountService employeeAccountService;
+    private final EmployeeAccountRepository employeeAccountRepository;
 
     @Transactional
-    public EmployeeResponseDTO addEmployee(EmployeeRequestDTO requestDTO){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-
-        Employee employee = Employee.builder()
-                .firstName(requestDTO.getFirstName())
-                .secondName(requestDTO.getSecondName())
-                .lastName(requestDTO.getLastName())
-                .role(requestDTO.getRole())
-                .egn(requestDTO.getEgn())
-                .company(company)
-                .build();
-
-        Employee employee1 = employeeRepository.save(employee);
-        return EmployeeResponseDTO.builder()
-                .id(employee1.getId())
-                .firstName(employee1.getFirstName())
-                .secondName(employee1.getSecondName())
-                .lastName(employee1.getLastName())
-                .egn(employee1.getEgn())
-                .role(employee1.getRole())
-                .build();
+    public EmployeeRegisterResponse addEmployee(EmployeeRegisterRequest requestDTO){
+        return employeeAccountService.registerEmployeeAccount(requestDTO);
     }
 
     @Transactional
-    public EmployeeResponseDTO updateEmployee(EmployeeRequestDTO requestDTO){
-        Employee employee = employeeRepository.findById(requestDTO.getId()).orElseThrow(() -> new IllegalArgumentException("Employee not found"));
-        if(requestDTO.getFirstName() != null){
-            employee.setFirstName(requestDTO.getFirstName());
+    public EmployeeRegisterResponse updateEmployee(UpdateEmployeeRequest requestDTO){
+        Company company = authenticationService.getAuthenticatedCompany();
+        EmployeeAccount employeeAccount = employeeAccountRepository.findById(requestDTO.getId()).orElseThrow(() -> new AuthorizationException("Employee not found"));
+        if (!employeeAccount.getCompany().getId().equals(company.getId())) {
+            throw new AuthorizationException("You do not have permission to update this employee");
         }
-        if(requestDTO.getSecondName() != null){
-            employee.setSecondName(requestDTO.getSecondName());
-        }
-        if(requestDTO.getLastName() != null){
-            employee.setLastName(requestDTO.getLastName());
-        }
-        if(requestDTO.getEgn() != null){
-            employee.setEgn(requestDTO.getEgn());
-        }
-        if(requestDTO.getRole() != null){
-            employee.setRole(requestDTO.getRole());
-        }
-        Employee employee1 = employeeRepository.save(employee);
-        return EmployeeResponseDTO.builder()
-                .id(employee1.getId())
-                .firstName(employee1.getFirstName())
-                .secondName(employee1.getSecondName())
-                .lastName(employee1.getLastName())
-                .egn(employee1.getEgn())
-                .role(employee1.getRole())
-                .build();
+        Optional.ofNullable(requestDTO.getEmployeeRole()).ifPresent(employeeAccount::setEmployeeRole);
+        EmployeeAccount updatedEmployee = employeeAccountRepository.save(employeeAccount);
+        return buildResponse(updatedEmployee);
     }
 
-    public List<EmployeeResponseDTO> getEmployeesForCompany() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-
-        List<Employee> employees =  employeeRepository.findByCompany(company);
-        return employees.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+    public List<EmployeeRegisterResponse> getEmployeesForCompany() {
+        Company company = authenticationService.getAuthenticatedCompany();
+        List<EmployeeAccount> employees = company.getEmployees();
+        return employees.stream().map(this::buildResponse).collect(Collectors.toList());
     }
 
     @Transactional
@@ -98,5 +71,24 @@ public class EmployeeService {
                 .egn(employee.getEgn())
                 .role(employee.getRole())
                 .build();
+    }
+
+    public EmployeeRegisterResponse buildResponse(EmployeeAccount account){
+        Office office = account.getOffice();
+        OfficeResponseDTO officeResponseDTO = OfficeResponseDTO.builder()
+                .id(office.getId())
+                .address(office.getAddress())
+                .phoneNumber(office.getPhoneNumber())
+                .build();
+        return EmployeeRegisterResponse.builder()
+                .id(account.getId())
+                .username(account.getUsername())
+                .firstName(account.getFirstName())
+                .secondName(account.getSecondName())
+                .lastName(account.getLastName())
+                .officeId(officeResponseDTO)
+                .egn(account.getEgn())
+                .role(account.getRole())
+                .employeeRole(account.getEmployeeRole()).build();
     }
 }

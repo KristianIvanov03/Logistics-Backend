@@ -18,7 +18,6 @@ public class EmployeeRegisterRequest {
     private String secondName;
     private String lastName;
     private Long officeId;
-    private Long companyId;
     private String egn;
     private Role role;
     private EmployeeRole employeeRole;

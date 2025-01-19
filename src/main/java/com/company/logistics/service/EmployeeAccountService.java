@@ -2,13 +2,17 @@ package com.company.logistics.service;
 
 import com.company.logistics.model.company.AuthenticationRequest;
 import com.company.logistics.model.company.AuthenticationResponse;
+import com.company.logistics.model.company.PasswordResetRequest;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.model.entities.EmployeeAccount;
 import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
 import com.company.logistics.model.entities.Office;
+import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.EmployeeAccountRepository;
 import com.company.logistics.repository.OfficeRepository;
+import com.company.logistics.utils.AuthenticationService;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +33,10 @@ public class EmployeeAccountService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final AuthenticationService authenticationService;
 
-    public AuthenticationResponse registerEmployeeAccount(EmployeeRegisterRequest request) {
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+    public EmployeeRegisterResponse registerEmployeeAccount(EmployeeRegisterRequest request) {
+        Company company = authenticationService.getAuthenticatedCompany();
         Office office = officeRepository.findById(request.getOfficeId())
                 .orElseThrow(() -> new UsernameNotFoundException("Office not found"));
         EmployeeAccount account = EmployeeAccount.builder()
@@ -47,13 +51,8 @@ public class EmployeeAccountService {
                 .office(office)
                 .company(company).build();
 
-        employeeAccountRepository.save(account);
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", request.getRole());
-        var jwtToken = jwtUtil.generateToken(extraClaims,account);
-        return AuthenticationResponse.builder()
-                .token(jwtToken).build();
-
+        EmployeeAccount account1 = employeeAccountRepository.save(account);
+        return buildResponse(account1);
     }
 
     public AuthenticationResponse loginCompany(AuthenticationRequest loginRequest){
@@ -68,6 +67,31 @@ public class EmployeeAccountService {
         extraClaims.put("role", user.getRole());
         var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
+    }
+
+    public void changePassword(PasswordResetRequest request){
+        EmployeeAccount account = authenticationService.getAuthenticatedEmployee();
+        account.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        employeeAccountRepository.save(account);
+    }
+
+    public EmployeeRegisterResponse buildResponse(EmployeeAccount account){
+        Office office = account.getOffice();
+        OfficeResponseDTO officeResponseDTO = OfficeResponseDTO.builder()
+                .id(office.getId())
+                .address(office.getAddress())
+                .phoneNumber(office.getPhoneNumber())
+                .build();
+        return EmployeeRegisterResponse.builder()
+                .id(account.getId())
+                .username(account.getUsername())
+                .firstName(account.getFirstName())
+                .secondName(account.getSecondName())
+                .lastName(account.getLastName())
+                .officeId(officeResponseDTO)
+                .egn(account.getEgn())
+                .role(account.getRole())
+                .employeeRole(account.getEmployeeRole()).build();
     }
 }
 

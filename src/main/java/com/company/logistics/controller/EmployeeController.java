@@ -2,6 +2,9 @@ package com.company.logistics.controller;
 
 import com.company.logistics.model.employee.EmployeeRequestDTO;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
+import com.company.logistics.model.employeeaccaunts.UpdateEmployeeRequest;
 import com.company.logistics.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +21,19 @@ public class EmployeeController {
 
     @PreAuthorize("hasRole('COMPANY')")
     @PostMapping("/add")
-    public ResponseEntity<EmployeeResponseDTO> addEmployee(@RequestBody EmployeeRequestDTO requestDTO){
+    public ResponseEntity<EmployeeRegisterResponse> addEmployee(@RequestBody EmployeeRegisterRequest requestDTO){
         return ResponseEntity.ok(employeeService.addEmployee(requestDTO));
     }
 
     @PreAuthorize("hasRole('COMPANY')")
     @PutMapping("/update")
-    public ResponseEntity<EmployeeResponseDTO> updateEmployee(@RequestBody EmployeeRequestDTO requestDTO){
+    public ResponseEntity<EmployeeRegisterResponse> updateEmployee(@RequestBody UpdateEmployeeRequest requestDTO){
         return ResponseEntity.ok(employeeService.updateEmployee(requestDTO));
     }
 
     @PreAuthorize("hasRole('COMPANY')")
     @GetMapping
-    public ResponseEntity<List<EmployeeResponseDTO>> getEmployees(){
+    public ResponseEntity<List<EmployeeRegisterResponse>> getEmployees(){
         return ResponseEntity.ok(employeeService.getEmployeesForCompany());
     }
 
