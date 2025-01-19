@@ -3,6 +3,7 @@ package com.company.logistics.controller;
 import com.company.logistics.model.company.*;
 import com.company.logistics.service.CompanyService;
 import com.company.logistics.utils.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CompanyController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> registerCompany(@RequestBody RegisterRequest company){
+    public ResponseEntity<AuthenticationResponse> registerCompany(@RequestBody @Valid RegisterRequest company){
         return ResponseEntity.ok(companyService.registerCompany(company));
     }
 
@@ -33,7 +34,7 @@ public class CompanyController {
 
     @PreAuthorize("hasRole('COMPANY')")
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequest request){
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid PasswordResetRequest request){
         companyService.resetPassword(request);
         return ResponseEntity.ok("Password updated successfully");
     }

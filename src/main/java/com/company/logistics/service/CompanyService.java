@@ -1,8 +1,10 @@
 package com.company.logistics.service;
 
+import com.company.logistics.exception.AuthorizationException;
 import com.company.logistics.model.company.*;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.repository.CompanyRepository;
+import com.company.logistics.utils.AuthenticationService;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class CompanyService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final AuthenticationService authenticationService;
 
     public AuthenticationResponse registerCompany(RegisterRequest registerRequest){
         var company1 = Company.builder()
@@ -48,7 +52,7 @@ public class CompanyService {
                         loginRequest.getPassword()
                 )
         );
-        var user = companyRepository.findByName(loginRequest.getName()).orElseThrow();
+        var user = companyRepository.findByName(loginRequest.getName()).orElseThrow(() -> new AuthorizationException("Company account not found for this email address"));
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole());
         var authToken = jwtUtil.generateToken(extraClaims, user);
@@ -56,24 +60,16 @@ public class CompanyService {
     }
 
     public void resetPassword(PasswordResetRequest request){
-        Company company = companyRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Company not Found"));
+        Company company = authenticationService.getAuthenticatedCompany();
         company.setPassword(passwordEncoder.encode(request.getNewPassword()));
         companyRepository.save(company);
     }
 
     public UpdateCompanyResponse updateCompanyInfo(UpdateCompanyRequest request){
-        String authenticatedUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Company company = companyRepository.findByName(authenticatedUsername).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        if(request.getEmail() != null){
-            company.setEmail(request.getEmail());
-        }
-        if(request.getAddress() != null){
-            company.setAddress(request.getAddress());
-        }
-        if(request.getPhoneNumber() != null){
-            company.setPhoneNumber(request.getPhoneNumber());
-        }
+        Company company = authenticationService.getAuthenticatedCompany();
+        Optional.ofNullable(request.getEmail()).ifPresent(company::setEmail);
+        Optional.ofNullable(request.getAddress()).ifPresent(company::setAddress);
+        Optional.ofNullable(request.getPhoneNumber()).ifPresent(company::setPhoneNumber);
         Company companyUpdated = companyRepository.save(company);
         return UpdateCompanyResponse.builder()
                 .address(companyUpdated.getAddress())
@@ -83,10 +79,10 @@ public class CompanyService {
     }
 
     public CompanyInfoResponse getCompanyInfo(){
-        String authenticationUserName = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(authenticationUserName).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
         return CompanyInfoResponse.builder()
                 .id(company.getId())
+                .taxNumber(company.getTaxNumber())
                 .name(company.getName())
                 .address(company.getAddress())
                 .email(company.getEmail())
