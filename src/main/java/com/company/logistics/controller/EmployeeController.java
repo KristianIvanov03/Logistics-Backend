@@ -6,6 +6,7 @@ import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
 import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.model.employeeaccaunts.UpdateEmployeeRequest;
 import com.company.logistics.service.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,7 @@ public class EmployeeController {
 
     @PreAuthorize("hasRole('COMPANY')")
     @PostMapping("/add")
-    public ResponseEntity<EmployeeRegisterResponse> addEmployee(@RequestBody EmployeeRegisterRequest requestDTO){
+    public ResponseEntity<EmployeeRegisterResponse> addEmployee(@RequestBody @Valid EmployeeRegisterRequest requestDTO){
         return ResponseEntity.ok(employeeService.addEmployee(requestDTO));
     }
 
