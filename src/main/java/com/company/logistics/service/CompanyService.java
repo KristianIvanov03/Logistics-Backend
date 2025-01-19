@@ -5,6 +5,7 @@ import com.company.logistics.model.company.*;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -80,14 +81,6 @@ public class CompanyService {
 
     public CompanyInfoResponse getCompanyInfo(){
         Company company = authenticationService.getAuthenticatedCompany();
-        return CompanyInfoResponse.builder()
-                .id(company.getId())
-                .taxNumber(company.getTaxNumber())
-                .name(company.getName())
-                .address(company.getAddress())
-                .email(company.getEmail())
-                .phoneNumber(company.getPhoneNumber())
-                .role(company.getRole())
-                .build();
+        return GlobalMapper.toCompanyInfo(company);
     }
 }

@@ -27,13 +27,8 @@ public class OfficeController {
 
     @PutMapping("/update/{officeId}")
     public ResponseEntity<OfficeResponseDTO> updateOffice(@PathVariable Long officeId, @RequestBody OfficeRequestDTO requestDTO){
-        try {
             OfficeResponseDTO response = officeService.updateOffice(officeId, requestDTO);
             return ResponseEntity.ok(response);
-        } catch (AccessDeniedException e){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(OfficeResponseDTO.builder().errorMessage(e.getMessage()).build());
-        }
-
     }
 
     @PreAuthorize("hasRole('COMPANY')")

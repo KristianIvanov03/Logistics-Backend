@@ -15,6 +15,7 @@ import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.EmployeeAccountRepository;
 import com.company.logistics.repository.EmployeeRepository;
 import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,47 +49,17 @@ public class EmployeeService {
         }
         Optional.ofNullable(requestDTO.getEmployeeRole()).ifPresent(employeeAccount::setEmployeeRole);
         EmployeeAccount updatedEmployee = employeeAccountRepository.save(employeeAccount);
-        return buildResponse(updatedEmployee);
+        return GlobalMapper.buildEmployeeResponse(updatedEmployee);
     }
 
     public List<EmployeeRegisterResponse> getEmployeesForCompany() {
         Company company = authenticationService.getAuthenticatedCompany();
         List<EmployeeAccount> employees = company.getEmployees();
-        return employees.stream().map(this::buildResponse).collect(Collectors.toList());
+        return employees.stream().map(GlobalMapper::buildEmployeeResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteEmployee(Long employeeId) {
         employeeRepository.deleteById(employeeId);
-    }
-
-    private EmployeeResponseDTO mapToResponseDTO(Employee employee){
-        return EmployeeResponseDTO.builder()
-                .id(employee.getId())
-                .firstName(employee.getFirstName())
-                .secondName(employee.getSecondName())
-                .lastName(employee.getLastName())
-                .egn(employee.getEgn())
-                .role(employee.getRole())
-                .build();
-    }
-
-    public EmployeeRegisterResponse buildResponse(EmployeeAccount account){
-        Office office = account.getOffice();
-        OfficeResponseDTO officeResponseDTO = OfficeResponseDTO.builder()
-                .id(office.getId())
-                .address(office.getAddress())
-                .phoneNumber(office.getPhoneNumber())
-                .build();
-        return EmployeeRegisterResponse.builder()
-                .id(account.getId())
-                .username(account.getUsername())
-                .firstName(account.getFirstName())
-                .secondName(account.getSecondName())
-                .lastName(account.getLastName())
-                .officeId(officeResponseDTO)
-                .egn(account.getEgn())
-                .role(account.getRole())
-                .employeeRole(account.getEmployeeRole()).build();
     }
 }

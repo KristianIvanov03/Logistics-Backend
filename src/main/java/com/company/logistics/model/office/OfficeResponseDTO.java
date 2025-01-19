@@ -17,5 +17,4 @@ public class OfficeResponseDTO {
     private String address;
     private String phoneNumber;
     private Long companyId;
-    private String errorMessage;
 }

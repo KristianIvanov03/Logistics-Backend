@@ -13,6 +13,7 @@ import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.EmployeeAccountRepository;
 import com.company.logistics.repository.OfficeRepository;
 import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,7 +53,7 @@ public class EmployeeAccountService {
                 .company(company).build();
 
         EmployeeAccount account1 = employeeAccountRepository.save(account);
-        return buildResponse(account1);
+        return GlobalMapper.buildEmployeeResponse(account1);
     }
 
     public AuthenticationResponse loginCompany(AuthenticationRequest loginRequest){
@@ -73,25 +74,6 @@ public class EmployeeAccountService {
         EmployeeAccount account = authenticationService.getAuthenticatedEmployee();
         account.setPassword(passwordEncoder.encode(request.getNewPassword()));
         employeeAccountRepository.save(account);
-    }
-
-    public EmployeeRegisterResponse buildResponse(EmployeeAccount account){
-        Office office = account.getOffice();
-        OfficeResponseDTO officeResponseDTO = OfficeResponseDTO.builder()
-                .id(office.getId())
-                .address(office.getAddress())
-                .phoneNumber(office.getPhoneNumber())
-                .build();
-        return EmployeeRegisterResponse.builder()
-                .id(account.getId())
-                .username(account.getUsername())
-                .firstName(account.getFirstName())
-                .secondName(account.getSecondName())
-                .lastName(account.getLastName())
-                .officeId(officeResponseDTO)
-                .egn(account.getEgn())
-                .role(account.getRole())
-                .employeeRole(account.getEmployeeRole()).build();
     }
 }
 

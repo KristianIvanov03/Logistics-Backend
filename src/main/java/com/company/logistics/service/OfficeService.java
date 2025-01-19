@@ -1,5 +1,6 @@
 package com.company.logistics.service;
 
+import com.company.logistics.exception.AuthorizationException;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.model.entities.Office;
 import com.company.logistics.model.office.OfficeRequestDTO;
@@ -7,6 +8,7 @@ import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.repository.CompanyRepository;
 import com.company.logistics.repository.OfficeRepository;
 import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,30 +38,30 @@ public class OfficeService {
 
 
         Office savedOffice = officeRepository.save(office);
-        return mapToResponseDTO(savedOffice);
+        return GlobalMapper.toOfficeResponse(savedOffice);
     }
 
     @Transactional
-    public OfficeResponseDTO updateOffice(Long officeId, OfficeRequestDTO requestDTO) throws AccessDeniedException{
+    public OfficeResponseDTO updateOffice(Long officeId, OfficeRequestDTO requestDTO){
         Office office = officeRepository.findById(officeId).orElseThrow(() -> new EntityNotFoundException("Office not found"));
         Company company = authenticationService.getAuthenticatedCompany();
 
         if(!office.getCompany().getId().equals(company.getId())){
-            throw new AccessDeniedException("You do not have permission to update this office");
+            throw new AuthorizationException("You do not have permission to update this office");
         }
 
         Optional.ofNullable(requestDTO.getAddress()).ifPresent(office::setAddress);
         Optional.ofNullable(requestDTO.getPhoneNumber()).ifPresent(office::setPhoneNumber);
 
         Office savedOffice = officeRepository.save(office);
-        return mapToResponseDTO(savedOffice);
+        return GlobalMapper.toOfficeResponse(savedOffice);
     }
 
     @Transactional(readOnly = true)
     public List<OfficeResponseDTO> getOfficesForCompany(){
         Company company = authenticationService.getAuthenticatedCompany();
         List<Office> offices = officeRepository.findByCompany(company);
-        List<OfficeResponseDTO> response = offices.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+        List<OfficeResponseDTO> response = offices.stream().map(GlobalMapper::toOfficeResponse).collect(Collectors.toList());
         return response;
     }
 
@@ -76,15 +78,5 @@ public class OfficeService {
         }
 
         officeRepository.delete(office);
-    }
-
-    private OfficeResponseDTO mapToResponseDTO(Office office){
-        return new OfficeResponseDTO(
-                office.getId(),
-                office.getAddress(),
-                office.getPhoneNumber(),
-                office.getCompany().getId(),
-                null
-        );
     }
 }
