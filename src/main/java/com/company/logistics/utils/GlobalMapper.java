@@ -1,7 +1,11 @@
 package com.company.logistics.utils;
 
+import ch.qos.logback.core.net.server.Client;
+import com.company.logistics.model.clientaccount.ClientRegisterRequest;
+import com.company.logistics.model.clientaccount.ClientResponseDTO;
 import com.company.logistics.model.company.CompanyInfoResponse;
 import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
+import com.company.logistics.model.entities.ClientAccount;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.model.entities.EmployeeAccount;
 import com.company.logistics.model.entities.Office;
@@ -46,5 +50,15 @@ public class GlobalMapper {
                 .egn(account.getEgn())
                 .role(account.getRole())
                 .employeeRole(account.getEmployeeRole()).build();
+    }
+
+    public static ClientResponseDTO buildClientResponse(ClientAccount client){
+        return ClientResponseDTO.builder()
+                .name(client.getName())
+                .firstName(client.getFirstName())
+                .lastName(client.getLastName())
+                .phoneNumber(client.getPhoneNumber())
+                .address(client.getAddress())
+                .role(client.getRole()).build();
     }
 }

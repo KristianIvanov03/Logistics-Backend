@@ -1,5 +1,6 @@
 package com.company.logistics.service;
 
+import com.company.logistics.model.clientaccount.ClientResponseDTO;
 import com.company.logistics.model.entities.ClientAccount;
 import com.company.logistics.model.clientaccount.ClientRegisterRequest;
 import com.company.logistics.model.company.AuthenticationRequest;
@@ -7,6 +8,8 @@ import com.company.logistics.model.company.AuthenticationResponse;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.repository.ClientAccountRepository;
 import com.company.logistics.repository.CompanyRepository;
+import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import com.company.logistics.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +29,7 @@ public class ClientAccountService {
     private final AuthenticationManager authenticationManager;
     private final CompanyRepository companyRepository;
     private final JwtUtil jwtUtil;
+    private final AuthenticationService authenticationService;
 
     public AuthenticationResponse registerEmployeeAccount(ClientRegisterRequest request) {
         Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
@@ -60,5 +64,10 @@ public class ClientAccountService {
         extraClaims.put("role", user.getRole());
         var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
+    }
+
+    public ClientResponseDTO getClientInfo(){
+        ClientAccount clientAccount = authenticationService.getAuthenticatedClient();
+        return GlobalMapper.buildClientResponse(clientAccount);
     }
 }

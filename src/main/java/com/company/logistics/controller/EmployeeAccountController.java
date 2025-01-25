@@ -20,7 +20,7 @@ public class EmployeeAccountController {
     private final EmployeeAccountService employeeAccountService;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<AuthenticationResponse> loginCompany(@RequestBody AuthenticationRequest loginRequest){
+    public ResponseEntity<AuthenticationResponse> loginCompany(@RequestBody @Valid AuthenticationRequest loginRequest){
         return ResponseEntity.ok(employeeAccountService.loginCompany(loginRequest));
     }
 
