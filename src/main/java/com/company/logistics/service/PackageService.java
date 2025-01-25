@@ -1,14 +1,19 @@
 package com.company.logistics.service;
 
+import com.company.logistics.exception.AuthorizationException;
 import com.company.logistics.model.entities.*;
 import com.company.logistics.model.entities.Package;
+import com.company.logistics.model.enums.DeliveryType;
 import com.company.logistics.model.enums.Role;
+import com.company.logistics.model.enums.ShippingMethod;
 import com.company.logistics.model.packages.ClientInfo;
 import com.company.logistics.model.packages.PackageRequestDto;
 import com.company.logistics.model.packages.PackageResonseDto;
 import com.company.logistics.model.packages.UpdateStatusRequest;
 import com.company.logistics.repository.*;
 import com.company.logistics.model.enums.PackageStatus;
+import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.PriceCalculator;
 import com.company.logistics.utils.ReportMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,30 +37,36 @@ public class PackageService {
     private final OfficeRepository officeRepository;
     private final EmployeeAccountRepository employeeAccountRepository;
     private final CompanyRepository companyRepository;
+    private final AuthenticationService authenticationService;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public PackageResonseDto createPackage(PackageRequestDto request){
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         ClientAccount sender = clientAccountRepository.findById(request.getSenderId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
         ClientAccount receiver = clientAccountRepository.findById(request.getReceiverId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        Office senderOffice = officeRepository.findById(request.getSenderOfficeId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        Office receiverOffice = officeRepository.findById(request.getReceiverOfficeId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        EmployeeAccount employeeAccount = employeeAccountRepository.findById(request.getRegisteredByEmployeeId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Office senderOffice = officeRepository.findById(employeeAccount.getOffice().getId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Office receiverOffice = null;
+        if(request.getShippingMethod() == ShippingMethod.OFFICE){
+            receiverOffice = officeRepository.findById(request.getReceiverOfficeId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        }
         Company company = companyRepository.findById(employeeAccount.getCompany().getId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
         Package pack = Package.builder()
                 .company(company)
                 .senderId(sender)
                 .receiverId(receiver)
-                .deliveryAddress(receiver.getAddress())
+                .deliveryAddress(request.getShippingMethod() == ShippingMethod.ADDRESS ? request.getDeliveryAddress() : null)
                 .senderOffice(senderOffice)
                 .recieverOffice(receiverOffice)
                 .weight(request.getWeight())
-                .price(request.getPrice())
+                .price(PriceCalculator.calculatePrice(request))
                 .isDelivered(false)
+                .isPaid(false)
                 .registrationDate(LocalDateTime.now())
                 .registeredByEmployee(employeeAccount)
                 .status(PackageStatus.NEW)
                 .deliveryType(request.getDeliveryType())
+                .deliveryDate(calculateDeliveryDate(request.getDeliveryType()))
                 .shippingMethod(request.getShippingMethod()).build();
         Package pack1 = packageRepository.save(pack);
         PackageResonseDto response = PackageResonseDto.builder()
@@ -63,6 +74,8 @@ public class PackageService {
                 .deliveryAddress(pack1.getDeliveryAddress())
                 .weight(pack1.getWeight())
                 .price(pack1.getPrice())
+                .isPaid(pack1.getIsPaid())
+                .deliveryDate(pack1.getDeliveryDate())
                 .deliveryType(pack1.getDeliveryType())
                 .shippingMethod(pack1.getShippingMethod())
                 .status(pack1.getStatus())
@@ -72,16 +85,25 @@ public class PackageService {
     }
 
     public PackageResonseDto updateStatus(UpdateStatusRequest request){
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         Package pack = packageRepository.findById(request.getPackageId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        if (employeeAccount.getCompany().getId() != pack.getCompany().getId()){
+            throw new AuthorizationException("You do not have permission to this package");
+        }
         pack.setStatus(request.getStatus());
         Package pack1 = packageRepository.save(pack);
         return ReportMapper.buildPackage(pack1);
     }
 
     public PackageResonseDto finishPackage(Long id){
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         Package pack = packageRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        if (employeeAccount.getCompany().getId() != pack.getCompany().getId()){
+            throw new AuthorizationException("You do not have permission to this package");
+        }
         pack.setStatus(PackageStatus.DELIVERED);
         pack.setDeliveryDate(LocalDate.now());
+        pack.setIsPaid(true);
         Package pack1 = packageRepository.save(pack);
         return ReportMapper.buildPackage(pack1);
     }
@@ -136,5 +158,15 @@ public class PackageService {
                 .map(Role::valueOf)
                 .findFirst()
                 .orElseThrow(() -> new AccessDeniedException("No role assigned to user"));
+    }
+
+    private LocalDate calculateDeliveryDate(DeliveryType deliveryType){
+        if (deliveryType == DeliveryType.EXPRESS){
+            return LocalDate.now().plusDays(4);
+        }else if (deliveryType == DeliveryType.OVERNIGHT){
+            return LocalDate.now().plusDays(2);
+        }else {
+            return LocalDate.now().plusDays(7);
+        }
     }
 }

@@ -32,6 +32,8 @@ public class ReportMapper {
                 .deliveryAddress(pack.getDeliveryAddress())
                 .weight(pack.getWeight())
                 .price(pack.getPrice())
+                .isPaid(pack.getIsPaid())
+                .deliveryDate(pack.getDeliveryDate())
                 .deliveryType(pack.getDeliveryType())
                 .shippingMethod(pack.getShippingMethod())
                 .status(pack.getStatus())

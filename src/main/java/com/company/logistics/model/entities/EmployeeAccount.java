@@ -98,4 +98,22 @@ public class EmployeeAccount implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "EmployeeAccount{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", secondName='" + secondName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", role=" + role +
+                ", employeeRole=" + employeeRole +
+                ", egn='" + egn + '\'' +
+                ", office=" + (office != null ? office.getId() : null) +
+                ", company=" + (company != null ? company.getName() : null) +
+                '}';
+    }
+
+
 }

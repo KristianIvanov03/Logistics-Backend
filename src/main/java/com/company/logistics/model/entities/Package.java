@@ -56,6 +56,8 @@ public class Package {
 
     private Boolean isDelivered;
 
+    private Boolean isPaid;
+
     private LocalDate deliveryDate;
 
     private LocalDateTime registrationDate;
