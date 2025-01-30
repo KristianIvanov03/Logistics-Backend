@@ -31,7 +31,7 @@ public class ClientAccountService {
     private final JwtUtil jwtUtil;
     private final AuthenticationService authenticationService;
 
-    public AuthenticationResponse registerEmployeeAccount(ClientRegisterRequest request) {
+    public AuthenticationResponse registerClientAccount(ClientRegisterRequest request) {
         Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
         ClientAccount account = ClientAccount.builder()
                 .name(request.getName())
@@ -52,7 +52,7 @@ public class ClientAccountService {
 
     }
 
-    public AuthenticationResponse loginCompany(AuthenticationRequest loginRequest){
+    public AuthenticationResponse loginClient(AuthenticationRequest loginRequest){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getName(),

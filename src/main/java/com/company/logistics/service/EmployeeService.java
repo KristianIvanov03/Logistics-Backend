@@ -16,6 +16,7 @@ import com.company.logistics.repository.EmployeeAccountRepository;
 import com.company.logistics.repository.EmployeeRepository;
 import com.company.logistics.utils.AuthenticationService;
 import com.company.logistics.utils.GlobalMapper;
+import com.company.logistics.utils.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
-    private final EmployeeRepository employeeRepository;
     private final AuthenticationService authenticationService;
     private final EmployeeAccountService employeeAccountService;
     private final EmployeeAccountRepository employeeAccountRepository;
@@ -44,9 +44,7 @@ public class EmployeeService {
     public EmployeeRegisterResponse updateEmployee(UpdateEmployeeRequest requestDTO){
         Company company = authenticationService.getAuthenticatedCompany();
         EmployeeAccount employeeAccount = employeeAccountRepository.findById(requestDTO.getId()).orElseThrow(() -> new AuthorizationException("Employee not found"));
-        if (!employeeAccount.getCompany().getId().equals(company.getId())) {
-            throw new AuthorizationException("You do not have permission to update this employee");
-        }
+        Validator.validateEmployeeCompanyRelationship(employeeAccount, company);
         Optional.ofNullable(requestDTO.getEmployeeRole()).ifPresent(employeeAccount::setEmployeeRole);
         EmployeeAccount updatedEmployee = employeeAccountRepository.save(employeeAccount);
         return GlobalMapper.buildEmployeeResponse(updatedEmployee);
@@ -56,10 +54,5 @@ public class EmployeeService {
         Company company = authenticationService.getAuthenticatedCompany();
         List<EmployeeAccount> employees = company.getEmployees();
         return employees.stream().map(GlobalMapper::buildEmployeeResponse).collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void deleteEmployee(Long employeeId) {
-        employeeRepository.deleteById(employeeId);
     }
 }

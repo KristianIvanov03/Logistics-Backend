@@ -19,13 +19,13 @@ public class ClientAccountController {
     private final ClientAccountService clientAccountService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity<AuthenticationResponse> registerEmployee(@RequestBody @Valid ClientRegisterRequest request){
-        return ResponseEntity.ok(clientAccountService.registerEmployeeAccount(request));
+    public ResponseEntity<AuthenticationResponse> registerClient(@RequestBody @Valid ClientRegisterRequest request){
+        return ResponseEntity.ok(clientAccountService.registerClientAccount(request));
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<AuthenticationResponse> loginCompany(@RequestBody @Valid AuthenticationRequest loginRequest) {
-        return ResponseEntity.ok(clientAccountService.loginCompany(loginRequest));
+    public ResponseEntity<AuthenticationResponse> loginClient(@RequestBody @Valid AuthenticationRequest loginRequest) {
+        return ResponseEntity.ok(clientAccountService.loginClient(loginRequest));
     }
 
     @GetMapping

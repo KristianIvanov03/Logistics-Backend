@@ -54,6 +54,7 @@ public class GlobalMapper {
 
     public static ClientResponseDTO buildClientResponse(ClientAccount client){
         return ClientResponseDTO.builder()
+                .id(client.getId())
                 .name(client.getName())
                 .firstName(client.getFirstName())
                 .lastName(client.getLastName())

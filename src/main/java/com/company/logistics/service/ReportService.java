@@ -2,6 +2,7 @@ package com.company.logistics.service;
 
 import com.company.logistics.model.RevenueInPeriodRequest;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.model.entities.ClientAccount;
 import com.company.logistics.model.entities.Company;
 import com.company.logistics.model.entities.Employee;
@@ -11,6 +12,8 @@ import com.company.logistics.model.enums.PackageStatus;
 import com.company.logistics.model.packages.ClientInfo;
 import com.company.logistics.model.packages.PackageResonseDto;
 import com.company.logistics.repository.*;
+import com.company.logistics.utils.AuthenticationService;
+import com.company.logistics.utils.GlobalMapper;
 import com.company.logistics.utils.ReportMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,30 +27,28 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReportService {
-    private final EmployeeRepository employeeRepository;
     private final ClientAccountRepository clientAccountRepository;
     private final CompanyRepository companyRepository;
     private final EmployeeAccountRepository employeeAccountRepository;
     private final PackageRepository packageRepository;
-    public List<EmployeeResponseDTO> getAllEmployees(){
-        List<Employee> employees = employeeRepository.findAll();
+    private final AuthenticationService authenticationService;
+    public List<EmployeeRegisterResponse> getAllEmployees(){
+        Company company = authenticationService.getAuthenticatedCompany();
+        List<EmployeeAccount> employees = company.getEmployees();
         return employees.stream()
-                .map(ReportMapper::toEmployee)
+                .map(GlobalMapper::buildEmployeeResponse)
                 .collect(Collectors.toList());
     }
 
     public  List<ClientInfo> getAllClients(){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        List<ClientAccount> clients = clientAccountRepository.findAllByCompanyId(company);
+        Company company = authenticationService.getAuthenticatedCompany();
         return company.getClients().stream()
                 .map(ReportMapper::buildClientInfo)
                 .collect(Collectors.toList());
     }
 
     public List<PackageResonseDto> getAllPackages(){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Company company = companyRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
+        Company company = authenticationService.getAuthenticatedCompany();
         return company.getPackages().stream()
                 .map(ReportMapper::buildPackage)
                 .collect(Collectors.toList());

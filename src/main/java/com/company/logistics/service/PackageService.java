@@ -15,6 +15,7 @@ import com.company.logistics.model.enums.PackageStatus;
 import com.company.logistics.utils.AuthenticationService;
 import com.company.logistics.utils.PriceCalculator;
 import com.company.logistics.utils.ReportMapper;
+import com.company.logistics.utils.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,9 +88,7 @@ public class PackageService {
     public PackageResonseDto updateStatus(UpdateStatusRequest request){
         EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         Package pack = packageRepository.findById(request.getPackageId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        if (employeeAccount.getCompany().getId() != pack.getCompany().getId()){
-            throw new AuthorizationException("You do not have permission to this package");
-        }
+        Validator.validatePackagePermission(employeeAccount, pack);
         pack.setStatus(request.getStatus());
         Package pack1 = packageRepository.save(pack);
         return ReportMapper.buildPackage(pack1);
@@ -98,9 +97,7 @@ public class PackageService {
     public PackageResonseDto finishPackage(Long id){
         EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         Package pack = packageRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
-        if (employeeAccount.getCompany().getId() != pack.getCompany().getId()){
-            throw new AuthorizationException("You do not have permission to this package");
-        }
+        Validator.validatePackagePermission(employeeAccount, pack);
         pack.setStatus(PackageStatus.DELIVERED);
         pack.setDeliveryDate(LocalDate.now());
         pack.setIsPaid(true);

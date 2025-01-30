@@ -37,11 +37,4 @@ public class EmployeeController {
     public ResponseEntity<List<EmployeeRegisterResponse>> getEmployees(){
         return ResponseEntity.ok(employeeService.getEmployeesForCompany());
     }
-
-    @PreAuthorize("hasRole('COMPANY')")
-    @DeleteMapping("/delete/{employeeId}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable Long employeeId){
-        employeeService.deleteEmployee(employeeId);
-        return ResponseEntity.ok("Employee Removed Successfully");
-    }
 }

@@ -2,6 +2,7 @@ package com.company.logistics.controller;
 
 import com.company.logistics.model.RevenueInPeriodRequest;
 import com.company.logistics.model.employee.EmployeeResponseDTO;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.model.entities.Package;
 import com.company.logistics.model.packages.ClientInfo;
 import com.company.logistics.model.packages.PackageResonseDto;
@@ -19,7 +20,7 @@ import java.util.List;
 public class ReportController {
     private final ReportService reportService;
     @GetMapping("/employees")
-    public ResponseEntity<List<EmployeeResponseDTO>> getEmployees(){
+    public ResponseEntity<List<EmployeeRegisterResponse>> getEmployees(){
         return ResponseEntity.ok(reportService.getAllEmployees());
     }
     @GetMapping("/clients")
