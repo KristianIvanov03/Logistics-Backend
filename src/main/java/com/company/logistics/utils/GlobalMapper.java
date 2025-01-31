@@ -4,6 +4,7 @@ import ch.qos.logback.core.net.server.Client;
 import com.company.logistics.model.clientaccount.ClientRegisterRequest;
 import com.company.logistics.model.clientaccount.ClientResponseDTO;
 import com.company.logistics.model.company.CompanyInfoResponse;
+import com.company.logistics.model.company.CompanyNamesAndIdsDTO;
 import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.model.entities.ClientAccount;
 import com.company.logistics.model.entities.Company;
@@ -61,5 +62,12 @@ public class GlobalMapper {
                 .phoneNumber(client.getPhoneNumber())
                 .address(client.getAddress())
                 .role(client.getRole()).build();
+    }
+
+    public static CompanyNamesAndIdsDTO buildCompanyNameAndId(Company company){
+        return CompanyNamesAndIdsDTO.builder()
+                .id(company.getId())
+                .name(company.getName())
+                .build();
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -50,5 +51,10 @@ public class CompanyController {
     @GetMapping("/info")
     public ResponseEntity<CompanyInfoResponse> getCompanyInfo(){
         return ResponseEntity.ok(companyService.getCompanyInfo());
+    }
+
+    @GetMapping("/get-all-companies")
+    public ResponseEntity<List<CompanyNamesAndIdsDTO>> getAllCompanies(){
+        return ResponseEntity.ok(companyService.getAllCompanies());
     }
 }

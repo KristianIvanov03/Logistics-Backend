@@ -16,8 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +40,10 @@ public class CompanyService {
                 .phoneNumber(registerRequest.getPhoneNumber())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
-        companyRepository.save(company1);
+        Company companyreg =companyRepository.save(company1);
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", registerRequest.getRole());
+        extraClaims.put("id", companyreg.getId());
         var jwtToken = jwtUtil.generateToken(extraClaims, company1);
         return AuthenticationResponse.builder()
                 .token(jwtToken).build();
@@ -82,5 +85,11 @@ public class CompanyService {
     public CompanyInfoResponse getCompanyInfo(){
         Company company = authenticationService.getAuthenticatedCompany();
         return GlobalMapper.toCompanyInfo(company);
+    }
+
+    public List<CompanyNamesAndIdsDTO> getAllCompanies(){
+        return companyRepository.findAll().stream()
+                .map(GlobalMapper::buildCompanyNameAndId)
+                .collect(Collectors.toList());
     }
 }
