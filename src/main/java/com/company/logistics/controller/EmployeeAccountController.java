@@ -4,6 +4,7 @@ import com.company.logistics.model.company.AuthenticationRequest;
 import com.company.logistics.model.company.AuthenticationResponse;
 import com.company.logistics.model.company.PasswordResetRequest;
 import com.company.logistics.model.employeeaccaunts.EmployeeRegisterRequest;
+import com.company.logistics.model.employeeaccaunts.EmployeeRegisterResponse;
 import com.company.logistics.service.EmployeeAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,9 @@ public class EmployeeAccountController {
     public ResponseEntity<String> changePassword(@RequestBody @Valid PasswordResetRequest request){
         employeeAccountService.changePassword(request);
         return ResponseEntity.ok("Password updated successfully");
+    }
+
+    public ResponseEntity<EmployeeRegisterResponse> getEmployeeInfo(){
+        return ResponseEntity.ok(employeeAccountService.getEmployeeInfo());
     }
 }

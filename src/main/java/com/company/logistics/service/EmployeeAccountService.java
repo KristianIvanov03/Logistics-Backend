@@ -1,5 +1,6 @@
 package com.company.logistics.service;
 
+import com.company.logistics.model.clientaccount.ClientResponseDTO;
 import com.company.logistics.model.company.AuthenticationRequest;
 import com.company.logistics.model.company.AuthenticationResponse;
 import com.company.logistics.model.company.PasswordResetRequest;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -90,6 +92,17 @@ public class EmployeeAccountService {
 
         employeeAccountRepository.delete(employeeAccount);
 
+    }
+
+    public List<ClientResponseDTO> getAllClients(){
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
+        Company company = employeeAccount.getCompany();
+        return company.getClients().stream().map(GlobalMapper::buildClientResponse).toList();
+    }
+
+    public EmployeeRegisterResponse getEmployeeInfo() {
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
+        return GlobalMapper.buildEmployeeResponse(employeeAccount);
     }
 }
 
