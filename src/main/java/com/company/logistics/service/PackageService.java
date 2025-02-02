@@ -43,6 +43,7 @@ public class PackageService {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public PackageResonseDto createPackage(PackageRequestDto request){
+        Validator.validatePackage(request);
         EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         ClientAccount sender = clientAccountRepository.findById(request.getSenderId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
         ClientAccount receiver = clientAccountRepository.findById(request.getReceiverId()).orElseThrow(() -> new UsernameNotFoundException("Company not found"));
@@ -70,18 +71,7 @@ public class PackageService {
                 .deliveryDate(calculateDeliveryDate(request.getDeliveryType()))
                 .shippingMethod(request.getShippingMethod()).build();
         Package pack1 = packageRepository.save(pack);
-        PackageResonseDto response = PackageResonseDto.builder()
-                .id(pack1.getId())
-                .deliveryAddress(pack1.getDeliveryAddress())
-                .weight(pack1.getWeight())
-                .price(pack1.getPrice())
-                .isPaid(pack1.getIsPaid())
-                .deliveryDate(pack1.getDeliveryDate())
-                .deliveryType(pack1.getDeliveryType())
-                .shippingMethod(pack1.getShippingMethod())
-                .status(pack1.getStatus())
-                .senderInfo(buildClientInfo(pack1.getSenderId()))
-                .receiverInfo(buildClientInfo(pack1.getReceiverId())).build();
+        PackageResonseDto response = ReportMapper.buildPackage(pack1);
         return response;
     }
 

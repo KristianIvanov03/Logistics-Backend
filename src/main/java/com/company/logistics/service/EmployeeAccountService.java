@@ -104,5 +104,11 @@ public class EmployeeAccountService {
         EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
         return GlobalMapper.buildEmployeeResponse(employeeAccount);
     }
+
+    public List<OfficeResponseDTO> getAllOffices(){
+        EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
+        Company company = employeeAccount.getCompany();
+        return officeRepository.findByCompany(company).stream().map(GlobalMapper::toOfficeResponse).toList();
+    }
 }
 

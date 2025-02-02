@@ -1,6 +1,7 @@
 package com.company.logistics.controller;
 
 import com.company.logistics.model.clientaccount.ClientResponseDTO;
+import com.company.logistics.model.office.OfficeResponseDTO;
 import com.company.logistics.service.EmployeeAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,5 +21,10 @@ public class EmployeeHelperController {
     @GetMapping("/get-all-clients")
     public ResponseEntity<List<ClientResponseDTO>> getAllClients(){
         return ResponseEntity.ok(employeeAccountService.getAllClients());
+    }
+
+    @GetMapping("/get-all-offices")
+    public ResponseEntity<List<OfficeResponseDTO>> getAllOffices(){
+        return ResponseEntity.ok(employeeAccountService.getAllOffices());
     }
 }
