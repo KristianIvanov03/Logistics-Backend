@@ -119,13 +119,17 @@ public class PackageService {
 
             return allPackages;
 
-        } else if (userRole == Role.COMPANY || userRole == Role.EMPLOYEE) {
+        } else if (userRole == Role.COMPANY) {
             Company company = companyRepository.findByName(username)
                     .orElseThrow(() -> new UsernameNotFoundException("Company not found"));
 
             return company.getPackages().stream()
                     .map(ReportMapper::buildPackage)
                     .collect(Collectors.toList());
+        } else if (userRole == Role.EMPLOYEE){
+            EmployeeAccount employeeAccount = authenticationService.getAuthenticatedEmployee();
+            Company company = employeeAccount.getCompany();
+            return company.getPackages().stream().map(ReportMapper::buildPackage).toList();
         }
 
         throw new AccessDeniedException("Unauthorized role");
