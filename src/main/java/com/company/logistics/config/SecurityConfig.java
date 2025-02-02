@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .securityMatcher("/api/companies/**")
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/companies/account/register", "/api/companies/account/login", "/api/companies/account//get-all-companies").permitAll();
+                    auth.requestMatchers("/api/companies/account/register", "/api/companies/account/login", "/api/companies/account/get-all-companies").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

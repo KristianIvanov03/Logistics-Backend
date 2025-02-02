@@ -43,9 +43,10 @@ public class ClientAccountService {
                 .role(request.getRole())
                 .companyId(company).build();
 
-        clientAccountRepository.save(account);
+        ClientAccount clientAccount = clientAccountRepository.save(account);
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", request.getRole());
+        extraClaims.put("id", clientAccount.getId());
         var jwtToken = jwtUtil.generateToken(extraClaims,account);
         return AuthenticationResponse.builder()
                 .token(jwtToken).build();
@@ -62,6 +63,7 @@ public class ClientAccountService {
         var user = clientAccountRepository.findByName(loginRequest.getName()).orElseThrow();
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole());
+        extraClaims.put("id", user.getId());
         var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
     }

@@ -59,6 +59,7 @@ public class CompanyService {
         var user = companyRepository.findByName(loginRequest.getName()).orElseThrow(() -> new AuthorizationException("Company account not found for this email address"));
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole());
+        extraClaims.put("id", user.getId());
         var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
     }

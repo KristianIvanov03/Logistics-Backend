@@ -55,4 +55,13 @@ public class EmployeeService {
         List<EmployeeAccount> employees = company.getEmployees();
         return employees.stream().map(GlobalMapper::buildEmployeeResponse).collect(Collectors.toList());
     }
+
+    public boolean deleteEmployee(Long id){
+        try {
+            employeeAccountService.deleteEmployee(id);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
 }

@@ -15,6 +15,7 @@ import com.company.logistics.repository.OfficeRepository;
 import com.company.logistics.utils.AuthenticationService;
 import com.company.logistics.utils.GlobalMapper;
 import com.company.logistics.utils.JwtUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +68,7 @@ public class EmployeeAccountService {
         var user = employeeAccountRepository.findByName(loginRequest.getName()).orElseThrow();
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole());
+        extraClaims.put("id", user.getId());
         var authToken = jwtUtil.generateToken(extraClaims, user);
         return AuthenticationResponse.builder().token(authToken).build();
     }
@@ -74,6 +77,19 @@ public class EmployeeAccountService {
         EmployeeAccount account = authenticationService.getAuthenticatedEmployee();
         account.setPassword(passwordEncoder.encode(request.getNewPassword()));
         employeeAccountRepository.save(account);
+    }
+
+    public void deleteEmployee(Long id) throws AccessDeniedException{
+        Company company = authenticationService.getAuthenticatedCompany();
+        EmployeeAccount employeeAccount = employeeAccountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Office not found"));
+        // Check if the office belongs to the authenticated company
+        if (!employeeAccount.getCompany().getId().equals(company.getId())) {
+            throw new AccessDeniedException("You do not have permission to delete this office");
+        }
+
+        employeeAccountRepository.delete(employeeAccount);
+
     }
 }
 
