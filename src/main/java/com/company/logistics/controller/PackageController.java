@@ -5,6 +5,7 @@ import com.company.logistics.model.packages.PackageRequestDto;
 import com.company.logistics.model.packages.PackageResonseDto;
 import com.company.logistics.model.packages.UpdateStatusRequest;
 import com.company.logistics.service.PackageService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.util.List;
 public class PackageController {
     private final PackageService packageService;
     @PostMapping
-    public ResponseEntity<PackageResonseDto> makePackage(@RequestBody PackageRequestDto request){
+    public ResponseEntity<PackageResonseDto> makePackage(@RequestBody @Valid PackageRequestDto request){
         return ResponseEntity.ok(packageService.createPackage(request));
     }
     @PostMapping("/updateStatus")
