@@ -48,7 +48,7 @@ public class Package {
     private Office senderOffice;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_office_id", nullable = false)
+    @JoinColumn(name = "receiver_office_id")
     @JsonBackReference
     private Office recieverOffice;
 
