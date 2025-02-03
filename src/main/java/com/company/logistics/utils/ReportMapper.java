@@ -30,6 +30,7 @@ public class ReportMapper {
         return PackageResonseDto.builder()
                 .id(pack.getId())
                 .deliveryAddress(pack.getDeliveryAddress())
+                .receiverOffice(GlobalMapper.toOfficeResponse(pack.getRecieverOffice()))
                 .weight(pack.getWeight())
                 .price(pack.getPrice())
                 .isPaid(pack.getIsPaid())
